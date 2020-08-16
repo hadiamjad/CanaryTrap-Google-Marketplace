@@ -33,12 +33,12 @@ def GsuiteAppDownload(appurl):
     driver.find_element_by_xpath("//*[@id='view_container']/div/div/div[2]/div/div[1]/div/form/span/section/div/div/div/div/ul/li[1]/div").click()
     # delay
     time.sleep(5)
-    if "danger" in driver.current_url:
-        driver.quit()
-        return
-    # allow permissions click
-    driver.find_element_by_class_name("VfPpkd-RLmnJb").click()
-    time.sleep(5)
+    try:
+        # allow permissions click
+        driver.find_element_by_class_name("VfPpkd-RLmnJb").click()
+        time.sleep(5)
+    except:
+        time.sleep(3)
     driver.quit()
 
 # delete google app with specified app url
@@ -134,8 +134,8 @@ def List_cleaning_helper():
         else:
             print(a)
 
-# email rotation
-def email_rotation(new_email):
+# send verification email
+def VerificationEmail(new_email):
     opt = webdriver.ChromeOptions()
     opt.add_argument(r"user-data-dir=C:\Users\Haadi\AppData\Local\Google\Chrome\User Data")
     opt.add_argument('--profile-directory=Profile 1')
@@ -157,6 +157,9 @@ def email_rotation(new_email):
     driver.find_element_by_xpath("//*[@id='yDmH0d']/c-wiz/div/div[3]/c-wiz/div/div[3]/div[1]/a").click()
     # delay
     time.sleep(5)
+    if "v2" not in driver.current_url:
+        driver.quit()
+        VerificationEmail(new_email)
     # password enter
     pwd = driver.find_element_by_name("password")
     pwd.send_keys("hadi1234")
@@ -177,8 +180,28 @@ def email_rotation(new_email):
     driver.find_element_by_xpath("//*[@id='yDmH0d']/div[11]/div/div[2]/div[3]/div[2]/span/span").click()
     # delay
     time.sleep(5)
+    # ok btn click
+    driver.find_element_by_xpath("//*[@id='yDmH0d']/div[11]/div/div[2]/div[3]/div/span/span").click()
+    # delay
+    time.sleep(5)
+    # re-send verification btn click
+    #driver.find_element_by_xpath("//*[@id='ow23']/div/div[3]/div[1]/div/div[2]/div/div[1]/div[4]/div/div/span/span").click()
+    #driver.find_element_by_class_name("RveJvd").click()
+    # delay
+    #time.sleep(5)
+    # re-send verification okay btn click
+    #driver.find_element_by_xpath("//*[@id='yDmH0d']/div[11]/div/div[2]/div[3]/div[2]/span/span").click()
+    # delay
+    #time.sleep(5)
 
     driver.quit()
+
+    EmailRotation(new_email)
+
+
+# email rotation using sogo
+def EmailRotation(new_email):
+    #driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + 't')
 
     # Now opening SoGo for verification
     opt = webdriver.ChromeOptions()
@@ -189,39 +212,93 @@ def email_rotation(new_email):
 
     driver.get("http://mail.danial.live/SOGo/")
     # delay
-    time.sleep(5)
+    time.sleep(15)
     # new_email enter
     driver.find_element_by_xpath("//*[@id='input_1']").send_keys(new_email)
     # new_email_password enter
     driver.find_element_by_xpath("//*[@id='input_2']").send_keys("helloworld")
-    # delay
-    time.sleep(5)
     # -> arrow click
     driver.find_element_by_xpath("//*[@id='login']/form/div[3]/button[2]").click()
     # delay
-    time.sleep(8)
+    time.sleep(15)
+    driver.find_element_by_xpath("/html/body/main/section/div/div[1]/md-toolbar[2]/div/button[2]/md-icon").click()
+    time.sleep(3)
     # select first verification email
     driver.find_element_by_xpath("//*[@id='messagesList']/md-virtual-repeat-container/div/div[2]/md-list/md-list-item[1]/div/button").click()
-    # delay
     time.sleep(5)
-    # click here in verification email
-    driver.find_element_by_xpath("//*[@id='detailView']/div/div[1]/md-card/md-card-content/div[6]/div/div/div/div/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/div[1]/div[2]/a").click()
-    # delay
-    time.sleep(5)
-    # windows handler
-    handlers = driver.window_handles
-    driver.switch_to.window(handlers[1])
-    # password enter
-    pwd = driver.find_element_by_name("password")
-    pwd.send_keys("hadi1234")
-    # next btn
-    nxt = driver.find_element_by_class_name("VfPpkd-RLmnJb")
-    nxt.click()
-    # delay
-    time.sleep(5)
+    #print(driver.find_element_by_xpath("//*[@id='detailView']/div/div[1]/md-card/md-card-content/div[1]/h5").text)
+    if driver.find_element_by_xpath("//*[@id='detailView']/div/div[1]/md-card/md-card-content/div[1]/h5").text != "Google Accounts: Email Change Verification":
+        # disconnect sogo
+        driver.find_element_by_xpath("/html/body/main/section/md-toolbar[1]/div[2]/a[6]/md-icon").click()
+        # delay
+        time.sleep(8)
+        driver.quit()
+        VerificationEmail(new_email)
+        return
+    else:
+        # delay
+        time.sleep(8)
+        # click here in verification email
+        driver.find_element_by_xpath("//*[@id='detailView']/div/div[1]/md-card/md-card-content/div[6]/div/div/div/div/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/div[1]/div[2]/a").click()
+        # delay
+        time.sleep(8)
+        # windows handler
+        handlers = driver.window_handles
+        driver.switch_to.window(handlers[1])
+        if "AccountChooser" in driver.current_url:
+            # account click
+            driver.find_element_by_xpath("//*[@id='view_container']/div/div/div[2]/div/div[1]/div/form/span/section/div/div/div/div/ul/li[1]/div").click()
+        if "verify" in driver.current_url:
+            driver.switch_to.window(handlers[0])
+            # delay
+            time.sleep(3)
+            # disconnect sogo
+            driver.find_element_by_xpath("/html/body/main/section/md-toolbar[1]/div[2]/a[6]/md-icon").click()
+            # delay
+            time.sleep(8)
+            driver.quit()
+            VerificationEmail(new_email)
+            return
+        time.sleep(8)
+        '''
+        if "v2" not in driver.current_url:
+            driver.switch_to.window(handlers[0])
+            # delay
+            time.sleep(3)
+            # disconnect sogo
+            driver.find_element_by_xpath("/html/body/main/section/md-toolbar[1]/div[2]/a[6]/md-icon").click()
+            # delay
+            time.sleep(8)
+            driver.quit()
+            VerificationEmail(new_email)
+            return
+        '''
+        # password enter
+        pwd = driver.find_element_by_name("password")
+        pwd.send_keys("hadi1234")
+        # next btn
+        nxt = driver.find_element_by_class_name("VfPpkd-RLmnJb")
+        nxt.click()
+        # delay
+        time.sleep(8)
+        driver.switch_to.window(handlers[0])
+        # delay
+        time.sleep(3)
+        #disconnect sogo
+        driver.find_element_by_xpath("/html/body/main/section/md-toolbar[1]/div[2]/a[6]/md-icon").click()
+        # delay
+        time.sleep(8)
 
-    driver.quit()
 
+        driver.quit()
+
+# complete driver
+def CompleteDriver():
+    VerificationEmail("test23@danial.live")
+
+    GsuiteAppDownload("https://gsuite.google.com/marketplace/app/bjorns_accentsnsymbols/102285000011")
+
+    GsuiteAppDelete("https://gsuite.google.com/marketplace/app/bjorns_accentsnsymbols/102285000011")
 
 
 
@@ -229,4 +306,14 @@ def email_rotation(new_email):
 #GsuiteAppDownload("https://gsuite.google.com/marketplace/app/lucidpress_free_design_tool/701689253383")
 #GsuiteAppDelete("https://gsuite.google.com/marketplace/app/lucidpress_free_design_tool/701689253383")
 #cleaningJSON()
-email_rotation("test2@danial.live")
+#emails = ["test1@danial.live", "test2@danial.live", "test3@danial.live", "test4@danial.live"]
+#count = 0
+#for i in range(25):
+    #VerificationEmail("test"+str(i+13)+"@danial.live")
+    #print("test"+str(i+1)+"@danial.live"Passwd)
+
+CompleteDriver()
+
+
+#"//*[@id="password"]"
+#"//*[@id="password"]/div[1]/div/div[1]/input"
